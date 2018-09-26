@@ -10,6 +10,14 @@ object Lint extends isabelle.Isabelle_Tool.Body
 
   def lint_dubious_imports(bases: Map[String, Sessions.Base]): Unit =
   {
+    val valid_hol_imports = List(
+      "HOL.Rat",
+      "HOL.Real",
+      "HOL.Complex",
+      "HOL.Real_Vector_Spaces",
+      "HOL.Transcendental"
+    )
+
     def dubious_imports(name: String, base: Sessions.Base): List[(String, String)] =
     {
       val graph = base.loaded_theories.dest
@@ -17,7 +25,7 @@ object Lint extends isabelle.Isabelle_Tool.Body
         ((thy, _), thy_deps) <- graph
         if thy.startsWith("HOL.")
         thy_dep <- thy_deps
-        if !thy_dep.startsWith("HOL.") && thy_dep != "Main" && thy_dep != "Complex_Main"
+        if !thy_dep.startsWith("HOL.") && thy_dep != "Main" && thy_dep != "Complex_Main" && !valid_hol_imports.contains(thy)
       } yield ((thy_dep, thy))
     }
 
@@ -30,7 +38,6 @@ object Lint extends isabelle.Isabelle_Tool.Body
         println(s"$thy_dep -> $thy")
     }
   }
-
 
   def lint(bases: Map[String, Sessions.Base]): Unit =
   {
